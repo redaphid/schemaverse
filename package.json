@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "async": "^2.5.0",
+    "chance": "^1.0.10",
+    "coffee-script": "^1.12.7",
+    "lodash": "^4.17.4",
+    "pg": "^7.0.2",
+    "request": "^2.81.0"
+  }
+}
