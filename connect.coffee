@@ -6,4 +6,5 @@ fs          = require 'fs'
 users = JSON.parse fs.readFileSync './users.json'
 schema = new Schemaverse()
 
-schema.postgresShit
+async.eachSeries users, schema.postgresShit, (error, results) =>
+  console.log {error, results}

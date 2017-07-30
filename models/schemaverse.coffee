@@ -6,20 +6,23 @@ class Schemaverse
   constructor: ->
     @chance = new Chance()
 
-  postgresShit: ({user, password}, callback) =>
+  postgresShit: ({username, password}, callback) =>
     { Client } = require 'pg'
 
     client = new Client
       host: 'db.schemaverse.com'
       database: 'schemaverse'
-      user
-      password
+      user: username
+      password: password
 
-    console.log "about to connect #{user}"
+    console.log "about to connect #{username}:#{password}"
     client.connect (error) =>
-      console.log error.stack if error?
+      console.error error.stack if error?
+      return callback() if error?
       console.log 'connected'
-      client.query 'SELECT GET_PLAYER_ID(SESSION_USER);', callback
+      client.query 'SELECT GET_PLAYER_ID(SESSION_USER);', (error, results) =>
+        return callback() if error?
+        callback null, results
 
 
   postCreateAccount: ({username, password}, callback) =>
@@ -32,6 +35,19 @@ class Schemaverse
         cmd: 'register'
         username: username
         password: password
+      headers:
+        "Cookie": "PHPSESSID=rs8slqde5mr0f8jio7nuojiul2"
+        "Origin": "https://schemaverse.com"
+        "Accept-Encoding": "gzip, deflate, br"
+        "Accept-Language": "en-US,en;q=0.8"
+        "Upgrade-Insecure-Requests": "1"
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36"
+        "Content-Type": "application/x-www-form-urlencoded"
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"
+        "Cache-Control": "max-age=0"
+        "Referer": "https://schemaverse.com/tw/index.php"
+        "Connection": "keep-alive"
+        "DNT": "1"
 
     request.post options, (error, response) =>
       return callback() if error?
@@ -40,7 +56,7 @@ class Schemaverse
       callback null, {username, password}
 
   createAccount: (nothing, callback) =>
-    username = @chance.name().split(' ').join('_').toLowerCase()
+    username = @chance.name().split(' ').join('').toLowerCase()
     password = _.random(99999,9999999999999999).toString '16'
     @postCreateAccount {username, password}, callback
 

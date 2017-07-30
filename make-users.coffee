@@ -4,7 +4,7 @@ _ = require 'lodash'
 fs = require 'fs'
 schema = new Schemaverse()
 whatever = []
-whatever.length = 999999
+whatever.length = 99
 
 async.mapLimit whatever, 100, schema.createAccount, (error, results) =>
   console.error error.stack if error?
